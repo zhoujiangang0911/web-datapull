@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0038)http://www.800shang.com/guardian_demo/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<script type="text/javascript" src="http://113.140.31.228/futures/assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="http://113.140.31.228/futures/assets/js/sha1.js"></script>
+<script type="text/javascript">
+	var JSONmeihua=function(jsonstr,html){
+		jsonstr=unescape(jsonstr.replace(/\\u/g,'%u'));
+		jsonstr=jsonstr.replace(/[\r\n\t]+/gi,"");
+		var newstr='';
+		var t=[];
+		var f=false;//换行标志
+		var dr=true;//遇逗号换行
+		for(var i=0;i<jsonstr.length;i++){
+			if(jsonstr[i]=='{'){
+				dr=true;
+				t.push('\t');
+				if(i>0 && jsonstr[i-1]==','){
+					newstr+=t.join('');
+				}
+				newstr+=jsonstr[i]+'\n';
+				f=true;
+			}else if(jsonstr[i]=='}'){
+				t.pop();
+				newstr+='\n'+t.join('')+jsonstr[i];
+				
+				f=true;
+			}else if(jsonstr[i]==','){
+				if(jsonstr[i+1]!='"' && jsonstr[i+1]!='{'){
+					newstr+=jsonstr[i];
+				}else{
+					newstr+=jsonstr[i]+(dr?'\n':'');
+				}
+				f=true;
+			}else if(jsonstr[i]==']'){
+				newstr+=jsonstr[i];
+				dr=true;
+			}else{
+				if(jsonstr[i]=='[' || !dr){
+					dr=false;
+					newstr+=jsonstr[i];
+				}else{
+					newstr+=(f?t.join(''):'')+jsonstr[i];
+				}
+				f=false;
+			}
+			
+		}
+		return newstr;
+	}
+	
+</script>
+<title>JSON debug tool</title>
+<script>window["_GOOG_TRANS_EXT_VER"] = "1";</script></head>
+<body bgcolor="#000000" style="color:#FFFFFF; font-size:12px; margin:0; padding:0;">
+CGI URI:
+<input type="text" id="url" size="100">
+&nbsp;&nbsp;
+<select id="type">
+  <option value="GET">GET</option>
+  <option value="POST">POST</option>
+</select>
+&nbsp;&nbsp;
+<input value="submit" type="button" id="submit">
+<!--
+<input value="自动测试push" type="button" id="autopush">
+-->
+<div style="float:right">
+  <select id="autoURI">
+    <option value="">验证Textarea JSON格式</option>
+    <optgroup label="基础、用户 接口">
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id|empty","act":"login","data":{"username":"admin","password":"123456"}}' title="POST">用户登录</option>
+	<option value="index.php/futures/notoken" xlabel='param={"sid":"session_id|empty","act":"sendsms","data":{"phone":"15877556369","type":"register|forget"}}' title="POST">发验证码</option>    
+	<option value="index.php/futures/notoken" xlabel='param={"sid":"session_id|empty","act":"register","data":{"username":"15877556369","password":"123456","re_password":"123456","nickname":"15877556369","code":"369369"}}' title="POST">用户注册</option>    
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"logout"}' title="POST">用户注销</option>
+	<option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"forget","data":{"phone":"15877556369","password":"123456","re_password":"123456","code":"214516"}}' title="POST">忘记密码</option>    
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"modifyUser","data":{"old_password":"778899","password":"123456","re_password":"123456"}}' title="POST">修改密码</option>    
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id|empty","act":"upgrade","data":{"version":"120"}}' title="POST">检查版本</option>    
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"setTags","data":{"type":"name"}}' title="POST">设置Tags</option>    
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"getTags"}' title="POST">客户端获取tags</option>  
+    </optgroup>
+    <optgroup label="期货行情">
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id|empty","act":"getKData","data":{"code":"PG 201399","type":"1","pageSize":"50","page":"2"}}' title="POST">获取期货K钱数据</option>
+    </optgroup>
+    <optgroup label="功能类接口">
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id|empty","act":"login","data":{"username":"admin","password":"123456"}}' title="POST">用户登录</option>
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"getFutures"}' title="POST">获取期货列表</option>
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"buyFutures","data":{"futuresid":"100201","type":"1","number":"1"}}' title="POST">购买期货（压涨跌）(type=1涨)</option>
+    <option value="index.php/futures/notoken" xlabel='param={"sid":"session_id","act":"transaction"}' title="POST">历史交易记录（充值&消费）</option>
+    </optgroup>
+    <optgroup label="JPUSH测试接口">
+    <option value="index.php/futures" xlabel='param={"sid":"session_id","act":"testpush","data":{"act":"testpush","info":"超级波波==>啊，shi了！！！"}}' title="POST">测试 JPUSH</option>
+    <option value="index.php/futures/testpushcount/000000000" xlabel='' title="GET">统计 JPUSH</option>
+    <option value="index.php/futures" xlabel='param={"sid":"session_id","act":"lookpushcount"}' title="POST">查看统计 JPUSH</option>
+    </optgroup>
+    <optgroup label="回调地址">
+    <option value="index.php/futures/callback_yeepay" xlabel='' title="POST">[易宝]用户充值(phone sdk中的回调地址)</option>
+    <option value="index.php/futures/callback_alipay" xlabel='' title="POST">[支付宝]用户充值(phone sdk中的回调地址)</option>
+    </optgroup>
+  </select>
+</div>
+<fieldset style="clear:both;">
+<legend>附加数据</legend>
+POST Data:
+<input id="post" size="100" style="width:100%; background-position:right 4px; background-repeat:no-repeat;">
+<br>
+此栏目有值时将直接以POST方式提交数据，数据格式如：szLoginID=vking&amp;szPassword=123456
+&nbsp;&nbsp;
+<input checked="checked" type="checkbox" id="isMeihua">自动格式化JSON
+</fieldset>
+<table width="100%">
+  <tbody><tr>
+    <td style=" border-right:#FF0000 solid 5px;" width="80%"><textarea rows="35" style="width:99%" id="json"></textarea>
+      <br>
+    </td>
+    <td style=" vertical-align:top;"><p style="background-color:#003399;">Tip:可以通过或设置CGI地址或直接将JSON串放入文本中进行测试！</p>
+      <div id="json_view" style="height:600px; overflow:auto;"></div></td>
+  </tr>
+</tbody></table>
+<script type="text/javascript">
+	var i=1;
+	$('#submit').click(function(){
+		var url=$.trim($('#url').val());
+		var str=$.trim($('#json').val());
+		var post=$.trim($('#post').val());
+		if(!$.trim($('#json').val()) && (!url || 'cgi/'==url)){
+			alert('请填写CGI地址或JSON串');
+			return;
+		}
+		if(!!url && url!=='cgi/'){
+			if(!!post){
+				var tmp=url;
+				url=[];
+				url[0]=tmp;
+				url[1]=post;
+				var type='POST';
+			}else{
+				url=url.split('?');
+				url[1]=!!url[1]?url[1]:'';
+				var type=$('#type').val();
+			}
+			
+			$.ajax({
+				type: type,
+				url: url[0],
+				dataType:'text',
+				data: url[1],
+				success: function(json){ 
+					if($('#isMeihua').attr('checked')){
+						testJson(json,$('#type').val());
+					}else{
+						$('#json').val(json);
+					}
+				},
+				error:function(){alert('CGI地址不存在或错误！');}
+			});
+		}else{
+			testJson($.trim($('#json').val()),'textarea');
+		}	
+	});
+	$('#autoURI').change(function(){
+		$("#url,#post").val('');
+		if(!this.value) return;
+		$("#url").val(notoken(this.value));
+		$("#post").val($(this.options[this.selectedIndex]).attr('xlabel'));
+		$("#type").val(this.options[this.selectedIndex].title);
+	});
+	function notoken(url){
+		var timestamp='1574636978';
+		var nonce='85263541';
+		var token='token is cat!';
+		var signature=SHA1(token+timestamp+nonce);
+		//alert(SHA1('gougou1988'+'1379488468451'+'5732769392'));
+		return url.replace('notoken','api/'+signature+'/'+timestamp+'/'+nonce);
+	}
+	function testJson(str,type){
+		$('#json').val(JSONmeihua(str));
+		var li=(type!='textarea')?(type+':'+$.trim($('#url').val())):type;
+		try{
+			str=str.replace(/[\r\n\t]+/gi,"");
+			eval("var json="+str);
+		}catch(e){
+			$('<p style="background-color:#FF3300;">'+(i++)+':&nbsp;&nbsp;通过 '+li+' 失败,JSON格式错误！</p>').prependTo('#json_view');
+			alert('JSON串格式错误');
+			return;
+		}
+		$('<p style="background-color:#009933;">'+(i++)+':&nbsp;&nbsp;通过 '+li+' 成功！</p>').prependTo('#json_view');
+	}
+	$('#autopush').click(function(){
+		$(function(){
+			$('#submit').trigger('click');
+			setInterval(function(){
+				$('#submit').trigger('click');
+			},1000*60*5);
+		});
+	});
+</script>
+
+
+</body></html>

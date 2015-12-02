@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPIRNG//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<!-- Transactions -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="mobile_db_dataSource" />
+		</property>
+	</bean>
+	<bean id="baseTransactionProxy"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true">
+		<property name="transactionManager">
+			<ref local="transactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="insert*">PROPAGATION_REQUIRED</prop>
+				<prop key="save*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="delete*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED</prop>
+				<prop key="rollback*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<!--  
+	<bean id="_userServiceImpl" class="com.mobile.future.service.user.impl.UserServiceImpl">
+		<property name="userDaoImpl">
+			<ref bean="userDaoImpl" />
+		</property>
+	</bean>
+	<bean id="userServiceImpl" parent="baseTransactionProxy">
+		<property name="target">
+			<ref bean="_userServiceImpl" />
+		</property>
+	</bean>
+	-->
+    <bean id="_dataServiceImpl" class="com.mobile.future.service.data.impl.DataServiceImpl">
+		<property name="dataDaoImpl">
+			<ref bean="dataDaoImpl" />
+		</property>
+	</bean>
+	<bean id="dataServiceImpl" parent="baseTransactionProxy">
+		<property name="target">
+			<ref bean="_dataServiceImpl" />
+		</property>
+	</bean>
+	
+</beans>

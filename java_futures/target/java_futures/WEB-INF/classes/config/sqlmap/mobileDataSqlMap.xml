@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="sqlmap_data_mobile">
+<!--
+	<typeAlias alias="DataMapping" type="com.mobile.future.vo.DataVO" />
+    
+	<resultMap id="DataMap" class="DataMapping">
+		<result column="merchName" property="merchName" />
+		<result column="merchCode" property="merchCode" />
+	</resultMap>
+
+	<select id="getInformation" parameterClass="java.util.Hashtable"
+		resultClass="DataMapping">
+		SELECT * FROM futures
+	</select>
+-->
+     <!-- 向期货全数据表插入数据 DELAYED -->
+    <insert id="insertDataToFutures" parameterClass="java.util.List">
+      <![CDATA[
+         INSERT INTO  futures (
+		`MERCHNAME`,
+		`MERCHCODE`,
+		`YCLOSE`,
+		`SETTLEMENT`,
+		`TOPEN`,
+		`HIGHEST`,
+		`LOWEST`,
+		`NEWEST`,
+		`VOLUME`,
+		`ORDERVOLUME`,
+		`AVERAGEPRICE`,
+		`TOTALTURNOVER`,
+		`TOTALVOLUME`,
+        `MIXED`,
+		`BIDPRICE1`,
+		`SELLINGPRICE1`,
+		`PURCHASES1`,
+		`SALES1`,
+		`BIDPRICE2`,
+		`SELLINGPRICE2`,
+		`PURCHASES2`,
+		`SALES2`,
+		`BIDPRICE3`,
+		`SELLINGPRICE3`,
+		`PURCHASES3`,
+        `SALES3`,
+		`BIDPRICE4`,
+		`SELLINGPRICE4`,
+        `PURCHASES4`,
+		`SALES4`,
+		`BIDPRICE5`,
+        `SELLINGPRICE5`,
+        `PURCHASES5`,
+		`SALES5`,
+        `TIME`
+		)
+		VALUES
+      ]]>
+      <iterate conjunction=",">
+      <![CDATA[
+          (
+              #dataVO[].merchName#,
+              #dataVO[].merchCode#,
+              #dataVO[].yClose#,
+              #dataVO[].settlement#,
+              #dataVO[].tOpen#,
+              #dataVO[].highest#,
+              #dataVO[].lowest#,
+              #dataVO[].newest#,
+              #dataVO[].volume#,
+              #dataVO[].orderVolume#,
+              #dataVO[].averagePrice#,
+              #dataVO[].totalTurnover#,
+              #dataVO[].totalVolume#,
+              #dataVO[].mixed#,
+              #dataVO[].bidPrice1#,
+              #dataVO[].sellingPrice1#,
+              #dataVO[].purchases1#,
+              #dataVO[].sales1#,
+              #dataVO[].bidPrice2#,
+              #dataVO[].sellingPrice2#,
+              #dataVO[].purchases2#,
+              #dataVO[].sales2#,
+              #dataVO[].bidPrice3#,
+              #dataVO[].sellingPrice3#,
+              #dataVO[].purchases3#,
+              #dataVO[].sales3#,
+              #dataVO[].bidPrice4#,
+              #dataVO[].sellingPrice4#,
+              #dataVO[].purchases4#,
+              #dataVO[].sales4#,
+              #dataVO[].bidPrice5#,
+              #dataVO[].sellingPrice5#,
+              #dataVO[].purchases5#,
+              #dataVO[].sales5#,
+              #dataVO[].time#
+          )
+      ]]>
+      </iterate><!--
+		<selectKey resultClass="INT"  keyProperty="id">
+			SELECT
+			LAST_INSERT_ID() AS id
+		</selectKey>-->
+	</insert>
+	
+	<!-- 向期货统计数据表插入数据 -->
+	<insert id="insertDataToFuturesCount" parameterClass="java.util.Hashtable">
+		INSERT INTO futures_count (
+		`MERCHNAME`,
+		`MERCHCODE`,
+        `OPEN`,
+        `HIGHEST`,
+		`LOWEST`,
+		`CLOSE`,
+		`AVERAGEPRICE`,
+		`TOTALTURNOVER`,
+		`TOTALVOLUME`,
+		`ORDERVOLUME`,
+        `DATE`
+		)
+		VALUES
+		(
+		#merchName#,
+		#merchCode#,
+		#tOpen#,
+		#highest#,
+		#lowest#,
+		#close#,
+		#averagePrice#,
+		#totalTurnover#,
+        #totalVolume#,
+		#orderVolume#,
+        #date#
+		)
+		<selectKey resultClass="INT" keyProperty="id">
+			SELECT
+			LAST_INSERT_ID() AS id
+		</selectKey>
+	</insert>
+	
+	
+	 <!-- 向期货每分钟数据表插入数据 -->
+	<insert id="insertDataToFuturesMinuteCount" parameterClass="java.util.Hashtable">
+		INSERT INTO futures_minute_count (
+		`MERCHCODE`,
+        `OPEN`,
+        `CLOSE`,
+        `HIGHEST`,
+		`LOWEST`,
+		`AVERAGEPRICE`,
+		`TIME`,
+		`ORDERVOLUME`,
+		`VOLUME`,
+		`MIXED`,
+		`AVERAGEPRICEREALTIME`,
+		`TOTALVOLUME`,
+		`MIXEDRATE`
+		)
+		VALUES
+		(
+		#merchCode#,
+		#open#,
+		#close#,
+		#highest#,
+		#lowest#,
+		#averagePrice#,
+		#date#,
+		#orderVolume#,
+		#volume#,
+		#mixed#,
+		#averagePriceRealTime#,
+		#totalVolume#,
+		#mixedRate#
+		)
+		<selectKey resultClass="INT" keyProperty="id">
+			SELECT
+			LAST_INSERT_ID() AS id
+		</selectKey>
+	</insert>
+	
+	<!-- 查询每分钟数据 -->
+	<select id="getDataEveryMinute" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataVO">
+	 	SELECT
+	 	  merchCode,
+	 	  tOpen,
+	 	  averagePrice,
+	 	  mixed,
+	 	  orderVolume,
+	 	  newest,
+	 	  volume,
+	 	  totalVolume
+	 	FROM  futures
+	 	where 1=1 
+		<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>
+		
+	 		<isNotEmpty prepend="AND"  property="open_time">
+	 		<![CDATA[
+						time  >=	#open_time# 
+							]]>
+	 		</isNotEmpty>
+	 		
+	 		<isNotEmpty prepend="AND"  property="close_time">
+	 		<![CDATA[
+						time <  #close_time#
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	order by time ASC
+	 </select>
+	 
+	 <!-- 查询每天最后一条数据 -->
+	<select id="getDataEveryDay" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataVO">
+	 	SELECT
+	 	  merchName,
+	 	  merchCode,
+	 	  yClose,
+	 	  tOpen,
+	 	  highest,
+	 	  lowest,
+	 	  newest,
+	 	  averagePrice,
+	 	  totalVolume,
+	 	  totalTurnover,
+	 	  mixed,
+	 	  orderVolume,
+	 	  time
+	 	FROM  futures
+	 	where 1=1 
+		<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>
+		
+	 		<isNotEmpty prepend="AND"  property="time">
+	 		<![CDATA[
+						time  =	#time# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	
+	 	group by merchCode
+	 </select>
+	 
+	 <!-- 查询每分钟数据 (这里的时间是用来确定哪一天的)-->
+	<select id="queryAllMinuteData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataMinuteVO">
+	 	SELECT
+	 	  *
+	 	FROM  futures_minute_count
+	 	where 1=1 
+		<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>
+	 		<isNotEmpty prepend="AND"  property="time">
+	 		<![CDATA[
+						time  >=	#time# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	order by time ASC
+	 </select>
+	 
+	 <!-- 查询最新数据 -->
+	<select id="getNewestData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataVO">
+	 	SELECT 
+           newest,
+           mixed,
+           tOpen,
+	       highest,
+	       lowest
+        FROM  futures
+	 	where 1=1 
+		<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>	
+	 	</dynamic> 
+	 	ORDER BY id DESC LIMIT 1
+	 </select>
+	 
+	<!-- 查询每天数据（周K和月K也用这个，只是处理方式不同）-->
+	<select id="queryEveryDayData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataCountVO">
+	 	SELECT
+	 	  open,
+	 	  highest,
+	 	  lowest,
+	 	  close,
+	 	  totalVolume,
+	 	  date
+	 	FROM  futures_count
+	 	where 1=1 
+	 	<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic>
+	 	 order by date DESC limit #starSize# , #endSize#
+	 </select>
+	 
+	 <!-- 查询全部分钟数据-->
+	<select id="queryMinuteCountData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataMinuteVO">
+	 	SELECT * FROM (
+	 	SELECT
+	 	  open,
+	 	  highest,
+	 	  lowest,
+	 	  close,
+	 	  volume,
+	 	  totalVolume,
+	 	  time
+	 	FROM  futures_minute_count
+	 	where 1=1 
+	 	<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	order by time DESC limit #starSize# , #endSize# ) AS TEMP
+	 	order by time ASC
+	 </select>
+	 
+	 <!-- 查询周K线数据-->
+	<select id="queryEveryWeekData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataCountVO">
+	 	SELECT 
+	 	b.date as DATE,
+	 	a.open as OPEN,
+	 	b.close as CLOSE,
+	 	a.highest as HIGHEST,
+	 	a.lowest as LOWEST,
+	 	a.totalvolume as TOTALVOLUME
+	 	FROM 
+	 	 (SELECT 
+	 	  WEEK(DATE) AS TIME,
+	 	  OPEN ,
+	 	  SUM(TOTALVOLUME) AS TOTALVOLUME,
+	 	  MAX(HIGHEST) AS HIGHEST,
+	 	  MIN(LOWEST) AS LOWEST
+	 	  FROM  futures_count 
+	 	  WHERE MERCHCODE=#merchCode# GROUP BY WEEK(DATE) ) AS a,
+	 	 (SELECT
+	 	  WEEK(DATE) AS TIME,
+	 	  DATE AS DATE,
+	 	  CLOSE
+	 	  FROM futures_count 
+	 	  WHERE MERCHCODE=#merchCode# AND  
+	 	  DATE IN (SELECT MAX(DATE) FROM  futures_count WHERE MERCHCODE=#merchCode#  GROUP BY WEEK(DATE))) AS b 
+	 	WHERE a.time=b.time
+	 	order by b.date DESC LIMIT #starSize# , #endSize#
+	 </select>
+	 
+	 <!-- 查询月K线数据-->
+	<select id="queryEveryMonthData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataCountVO">
+	 	SELECT 
+	 	b.date as DATE,
+	 	a.open as OPEN,
+	 	b.close as CLOSE,
+	 	a.highest as HIGHEST,
+	 	a.lowest as LOWEST,
+	 	a.totalvolume as TOTALVOLUME
+	 	FROM 
+	 	 (SELECT 
+	 	  MONTH(DATE) AS TIME,
+	 	  OPEN ,
+	 	  SUM(TOTALVOLUME) AS TOTALVOLUME,
+	 	  MAX(HIGHEST) AS HIGHEST,
+	 	  MIN(LOWEST) AS LOWEST
+	 	  FROM  futures_count WHERE MERCHCODE=#merchCode# GROUP BY MONTH(DATE) ) AS a,
+	 	 (SELECT
+	 	  MONTH(DATE) AS TIME,
+	 	  DATE AS DATE,
+	 	  CLOSE
+	 	  FROM futures_count WHERE MERCHCODE=#merchCode# AND  
+	 	  DATE IN (SELECT MAX(DATE) FROM  futures_count WHERE MERCHCODE=#merchCode#  GROUP BY MONTH(DATE) ) ) AS b 
+	 	WHERE a.time=b.time
+	 	order by b.date DESC LIMIT #starSize# , #endSize#
+	 </select>
+	 
+	 <!-- 查询实时挂盘数据-->
+	<select id="queryHangingPlateData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataVO">
+	 	SELECT 
+           bidPrice1,
+	       sellingPrice1,
+	       purchases1,
+	       sales1,
+	       bidPrice2,
+	       sellingPrice2,
+	       purchases2,
+	       sales2,
+	       bidPrice3,
+	       sellingPrice3,
+	       purchases3,
+	       sales3
+        FROM  futures
+	 	where 1=1 
+		<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>	
+	 		<isNotEmpty prepend="AND"  property="time">
+	 		<![CDATA[
+						time >=	#time# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	ORDER BY time DESC LIMIT 1
+	 </select> 
+	 
+	 <!-- 查询逐笔交易数据 -->
+	<select id="queryHandicapData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataVO">
+	 	SELECT 
+            TIME, newest,volume, mixed
+        FROM  futures
+	 	where 1=1 
+		<dynamic>
+		    <isNotEmpty prepend="AND"  property="merchCode">
+	 		<![CDATA[
+						merchCode =	#merchCode# 
+							]]>
+	 		</isNotEmpty>	
+	 		<isNotEmpty prepend="AND"  property="time">
+	 		<![CDATA[
+						time >=	#time# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	GROUP BY TOTALVOLUME  ORDER BY TIME DESC LIMIT 15
+	 </select>
+	 
+	  <!-- 查询futures表中最后一条数据的时间 -->
+	<select id="getLastDataTime"  resultClass="java.lang.String">
+	 	SELECT  time FROM  futures ORDER BY time DESC LIMIT 1
+	 </select>
+	 
+	  <!-- 查询futures表中最后一条数据的时间所对应的所有数据 -->
+	<select id="getAllKindsTypeData" parameterClass="java.util.Hashtable" resultClass="com.mobile.future.vo.DataVO">
+	 	SELECT
+	 	  merchName,
+	 	  merchCode,
+	 	  tOpen,
+	 	  highest,
+	 	  lowest,
+	 	  newest,
+	 	  totalVolume,
+	 	  totalTurnover,
+	 	  mixed,
+	 	  time
+	 	FROM  futures
+	 	where 1=1 
+		<dynamic>
+	 		<isNotEmpty prepend="AND"  property="time">
+	 		<![CDATA[
+						time  =	#time# 
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+	 	group by merchCode
+	 </select>
+	 
+	  <!-- 定时删除futures表中一周前的数据，因为数据库数据过多，会造成数据插入时间变长，从而影响数据库的数据采集效果 -->
+	  <delete id="deleteFuturesData" parameterClass="java.util.Hashtable">
+    	DELETE
+		FROM
+			futures
+		WHERE
+		 1=1 
+		<dynamic>
+	 		<isNotEmpty prepend="AND"  property="close_time">
+	 		<![CDATA[
+						time <=  #close_time#
+							]]>
+	 		</isNotEmpty>
+	 	</dynamic> 
+    </delete>
+    
+    <!-- 以下三条语句是为避免futures表ID过大而产生错误 -->
+    <!-- 删除原有主键 -->
+    <statement id="deletePrimaryKey">
+    ALTER TABLE futures DROP id;
+    </statement>
+    <!-- 添加新主键字段 -->
+    <statement id="addNewKey">
+    ALTER TABLE futures ADD id MEDIUMINT(11) NOT NULL FIRST;
+    </statement>
+    <!-- 设置新主键 -->
+    <statement id="setPrimaryKey">
+    ALTER TABLE futures MODIFY COLUMN id MEDIUMINT(11) NOT NULL AUTO_INCREMENT,ADD PRIMARY KEY(id);
+    </statement>
+    
+</sqlMap>

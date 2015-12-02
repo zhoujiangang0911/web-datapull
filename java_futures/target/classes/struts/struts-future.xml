@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+        
+<struts>
+	<package name="future" extends="base_package" namespace="/future">
+	<!-- 
+        <action name="addData" class="dataAction" method="addData"/>
+        <action name="changeData" class="statisticsAction" method="changeData"/>
+    -->
+        <action name="queryData" class="statisticsAction" method="queryData"/>
+        <action name="getAllTypeData" class="statisticsAction" method="getAllTypeData"/>
+        
+        
+	</package>
+</struts>

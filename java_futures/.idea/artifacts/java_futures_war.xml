@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="java_futures:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="java_futures.war">
+      <element id="artifact" artifact-name="java_futures:war exploded" />
+    </root>
+  </artifact>
+</component>
